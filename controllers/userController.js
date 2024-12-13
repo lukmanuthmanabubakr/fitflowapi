@@ -206,7 +206,7 @@ const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    const { name, email, phone, bio, photo, role, isVerified } = user;
+    const { name, email, phone, bio, photo } = user;
 
     user.email = email;
     user.name = req.body.name || name;

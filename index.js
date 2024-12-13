@@ -1,52 +1,42 @@
-import express from "express";
-import * as dotenv from "dotenv";
-import cors from "cors";
-import mongoose from "mongoose";
-import UserRoutes from "./routes/User.js";
-
-dotenv.config();
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const userRoute = require('./routes/userRoute')
+const errorHandler = require('./middleware/errorMiddleware')
 
 const app = express();
-app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true })); // for form data
 
-app.use("/api/user/", UserRoutes);
-// error handler
-app.use((err, req, res, next) => {
-  const status = err.status || 500;
-  const message = err.message || "Something went wrong";
-  return res.status(status).json({
-    success: false,
-    status,
-    message,
-  });
+//Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(bodyParser.json());
+
+
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://TrackItNow.vercel.app"],
+    credentials: true,
+  })
+);
+
+// Routes
+app.use("/api/users", userRoute);
+
+app.get("/", (req, res) => {
+  res.send("Home Page");
 });
 
-app.get("/", async (req, res) => {
-  res.status(200).json({
-    message: "Home page of Fitflow",
-  });
-});
+//Error Handler
+app.use(errorHandler)
 
-const connectDB = () => {
-  mongoose.set("strictQuery", true);
-  mongoose
-    .connect(process.env.MONGODB_URL)
-    .then(() => console.log("Connected to Mongo DB"))
-    .catch((err) => {
-      console.error("failed to connect with mongo");
-      console.error(err);
-    });
-};
+const PORT = process.env.PORT || 8008;
 
-const startServer = async () => {
-  try {
-    connectDB();
-    app.listen(8080, () => console.log("Server started on port 8080"));
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-startServer();
+mongoose.connect(process.env.MONGO_DB_URL).then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
+  })
+}).catch((err) => console.error(err));

@@ -102,6 +102,12 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Invalid email or password");
   }
 
+  if(user.role === 'suspended'){
+    res.status(401);
+    throw new Error("Unauthorized access");
+  }
+
+
   // Trgger 2FA for unknow UserAgent
   const ua = parser(req.headers["user-agent"]);
   const thisUserAgent = ua.ua;

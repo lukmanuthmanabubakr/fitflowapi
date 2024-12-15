@@ -19,6 +19,10 @@ const {
   loginWithCode,
   loginWithGoogle,
   getUserDashboard,
+  getWorkoutsByDate,
+  createWorkout,
+  updateWorkout,
+  deleteWorkout,
 } = require("../controllers/userController");
 const {
   protect,
@@ -45,6 +49,12 @@ router.patch("/changePassword", protect, changePassword);
 router.post("/sendLoginCode/:email", sendLoginCode);
 router.post("/loginWithCode/:email", loginWithCode);
 router.get("/dashboard", protect, getUserDashboard);
+router.post("/workouts", protect, createWorkout);
+router.get("/workouts", protect, getWorkoutsByDate);
+router.put("/workouts/:id", protect, updateWorkout);
+router.delete("/workouts/:id", protect, deleteWorkout);
+
+
 
 
 

@@ -18,6 +18,7 @@ const {
   sendLoginCode,
   loginWithCode,
   loginWithGoogle,
+  getUserDashboard,
 } = require("../controllers/userController");
 const {
   protect,
@@ -43,6 +44,7 @@ router.patch("/resetPassword/:resetToken", resetPassword);
 router.patch("/changePassword", protect, changePassword);
 router.post("/sendLoginCode/:email", sendLoginCode);
 router.post("/loginWithCode/:email", loginWithCode);
+router.get("/dashboard", protect, getUserDashboard);
 
 
 

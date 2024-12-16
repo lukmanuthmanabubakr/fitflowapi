@@ -104,7 +104,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (user.role === "suspended") {
     res.status(401);
-    throw new Error("Unauthorized access");
+    throw new Error("Account suspended, please contact support");
   }
 
   // Trgger 2FA for unknow UserAgent

@@ -900,13 +900,21 @@ const getUserDashboard = asyncHandler(async (req, res, next) => {
 
 const createWorkout = asyncHandler(async (req, res, next) => {
   try {
-    const { category, workoutName, sets, reps, weight, duration, caloriesBurned } = req.body;
+    const { category, workoutName, sets, reps, weight, duration, caloriesBurned, date } = req.body;
     const userId = req.user.id;
 
-    if (!category ||!workoutName ||!sets ||!reps ||!weight ||!duration ||!caloriesBurned) {
+    // Check if all required fields are provided
+    if (!category || !workoutName || !sets || !reps || !weight || !duration || !caloriesBurned) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Ensure the date is valid, or use the current date as fallback
+    const workoutDate = date ? new Date(date) : new Date();
+    if (isNaN(workoutDate)) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    // Create a new workout document
     const workout = new Workout({
       user: userId,
       category,
@@ -916,14 +924,16 @@ const createWorkout = asyncHandler(async (req, res, next) => {
       weight,
       duration,
       caloriesBurned,
+      date: workoutDate, // use the validated date
     });
 
+    // Save the workout to the database
     const savedWorkout = await workout.save();
 
-    res.status(201).json(savedWorkout);
+    res.status(201).json(savedWorkout); // Return the saved workout in the response
   } catch (err) {
     console.error(err);
-    next(err);
+    next(err); // Pass the error to the next middleware (usually an error handler)
   }
 });
 
@@ -933,9 +943,20 @@ const getWorkoutsByDate = asyncHandler(async (req, res, next) => {
     const { startDate, endDate } = req.query;
     const userId = req.user.id;
 
+    // Validate and parse dates
+    if (startDate && isNaN(Date.parse(startDate))) {
+      return res.status(400).json({ message: "Invalid startDate format" });
+    }
+    if (endDate && isNaN(Date.parse(endDate))) {
+      return res.status(400).json({ message: "Invalid endDate format" });
+    }
+
+    const parsedStartDate = startDate ? new Date(startDate) : new Date(0); // Default to the earliest date if no start date is provided
+    const parsedEndDate = endDate ? new Date(endDate) : new Date(); // Default to the current date if no end date is provided
+
     const workouts = await Workout.find({
       user: userId,
-      date: { $gte: new Date(startDate), $lt: new Date(endDate) },
+      date: { $gte: parsedStartDate, $lte: parsedEndDate },
     });
 
     res.status(200).json(workouts);
@@ -944,6 +965,7 @@ const getWorkoutsByDate = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
 
 // Update workout
 const updateWorkout = asyncHandler(async (req, res, next) => {

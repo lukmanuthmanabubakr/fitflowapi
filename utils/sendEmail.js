@@ -10,7 +10,7 @@ const sendEmail = async (
   name,
   link
 ) => {
-  // Dynamically import -express-handlebars
+  // Dynamically  -express-handlebars
   const hbs = (await import("nodemailer-express-handlebars")).default;
 
   // Create Email Transporter

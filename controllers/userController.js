@@ -49,7 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // Generate Token
   const token = generateToken(user._id);
 
-  // Send HTTP-only cookie
+  // Send HTTP-only 
   res.cookie("token", token, {
     path: "/",
     httpOnly: true,
